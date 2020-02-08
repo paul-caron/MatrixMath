@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Matrix Demo</title>
+        <script src="https://cdn.jsdelivr.net/gh/paul-caron/MatrixMath/matrix.js" ></script>
+    </head>
+    <body>
+        <canvas></canvas>
+        <script>
+            
+
+let canvas,ctx
+let w,h
+
+window.onload=init
+
+function init(){
+    canvas=document.querySelector("canvas")
+    canvas.width=w=innerWidth
+    canvas.height=h=innerHeight-50
+    ctx=canvas.getContext("2d")
+    start()
+}
+
+function start(){
+    const {sin,cos,PI}=Math
+    let point=new Matrix(3,1)
+    point.setValues([30,30,1])
+    const translation=new Matrix(3,3)
+    translation.setValues([1,0,w/2,
+                           0,1,h/2,
+                           0,0,1])
+    const scaling=new Matrix(3,3)
+    const angle=0.01
+    let rotation=new Matrix(3,3)
+    rotation.setValues([cos(angle),-sin(angle),0,
+                        sin(angle),cos(angle),0,
+                        0,0,1]);
+    const button=document.createElement("button")
+    button.innerText="reverse"
+    button.addEventListener(
+        "click",
+        ()=>{
+            rotation=Matrix.inverse(rotation)
+        }
+    )
+    document.body.appendChild(button)
+    function loop(time){
+        ctx.fillStyle="rgba(255,255,255,0.01)"
+        ctx.fillRect(0,0,w,h)
+        ctx.fillStyle ="black"
+        scaling.setValues([2*sin(time/500),0,0,
+                           0,3*sin(time/500),0,
+                           0,0,1])
+        const scaled=Matrix.mult(scaling,point)
+        const translated=Matrix.mult(translation,scaled)
+        const [x,y]=translated.values
+        ctx.fillRect(x,y,8,8)
+        point=Matrix.mult(rotation,point)
+        requestAnimationFrame(loop)
+    }
+    loop()
+}           
+            
+            
+        </script>
+    </body>
+</html>
